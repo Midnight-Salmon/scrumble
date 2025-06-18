@@ -74,7 +74,8 @@ set num_pages [llength page_paths]
 puts "found $num_posts posts and $num_pages pages"
 
 foreach post $post_paths {
-  set key [file rootname [lindex [file split $post] 2]]
+  set key [file rootname [file tail $post]]
+  puts $key
   set posts($key.date) [file mtime $post]
   set posts($key.title) [md_title $post]
   set posts($key.filename) "$key.html"
