@@ -87,3 +87,10 @@ foreach page $page_paths {
   set pages($key.filename) $key.html
   exec pandoc -o $pages($key.filename) ./pages/$key.md
 }
+
+set header_file [open ./header.html]
+set header [read $header_file]
+close $header_file
+set footer_file [open ./footer.html]
+set footer [read $footer_file]
+close $footer_file
