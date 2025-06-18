@@ -17,7 +17,7 @@ proc md_title {path} {
   set file [open $path]
   set data [read $file]
   close $file
-  set lines [split $data "\n"]
+  set lines [split $data \n]
   set title_line [lsearch -regex -inline $lines {^# .+}]
   return [string range $title_line 2 end]
 }
@@ -67,8 +67,8 @@ if {$missing > 0} {
   exit
 }
 
-set post_paths [glob "./posts/*.md"]
-set page_paths [glob "./pages/*.md"]
+set post_paths [glob {./posts/*.md}]
+set page_paths [glob {./pages/*.md}]
 set num_posts [llength post_paths]
 set num_pages [llength page_paths]
 puts "found $num_posts posts and $num_pages pages"
@@ -77,11 +77,13 @@ foreach post $post_paths {
   set key [file rootname [file tail $post]]
   set posts($key.date) [file mtime $post]
   set posts($key.title) [md_title $post]
-  set posts($key.filename) "$key.html"
+  set posts($key.filename) $key.html
+  exec pandoc -o $posts($key.filename) ./posts/$key.md
 }
 
 foreach page $page_paths {
   set key [file rootname [file tail $page]]
   set pages($key.title) [md_title $page]
-  set pages($key.filename) "$key.html"
+  set pages($key.filename) $key.html
+  exec pandoc -o $pages($key.filename) ./pages/$key.md
 }
