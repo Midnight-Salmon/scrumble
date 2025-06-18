@@ -75,8 +75,13 @@ puts "found $num_posts posts and $num_pages pages"
 
 foreach post $post_paths {
   set key [file rootname [file tail $post]]
-  puts $key
   set posts($key.date) [file mtime $post]
   set posts($key.title) [md_title $post]
   set posts($key.filename) "$key.html"
+}
+
+foreach page $page_paths {
+  set key [file rootname [file tail $page]]
+  set pages($key.title) [md_title $page]
+  set pages($key.filename) "$key.html"
 }
