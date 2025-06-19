@@ -25,15 +25,23 @@ proc md_title {path} {
 proc insert_after_tag {source dest tag} {
   set tag_length [string length $tag]
   set tag_index [string last $tag $dest]
-  set front [string range $dest 0 [expr "$tag_index + $tag_length"]]
+  set front [string range $dest 0 [expr "$tag_index + $tag_length - 1"]]
   set back [string range $dest [expr "$tag_index + $tag_length"] end]
   return [string cat $front $source $back]
 }
 
 proc post_table_row {date filename title} {
   set iso_date [clock format $date -format {%Y-%m-%d}]
-  return "<tr><td>$iso_date</td><td><a href=\"$filename\"><em>$title</em></a>\
-</td></tr>"
+  set cell1 "<td>$iso_date</td>"
+  set cell2 "<td><a href=\"$filename\"><em>$title</em></a></td>"
+  return [string cat \n <tr> $cell1 $cell2 </tr>]
+}
+
+if {$argc == 0} {
+  puts "ERROR: no site title provided"
+  exit
+} else {
+  set site_title [lindex $argv 0]
 }
 
 set version 0.1
@@ -102,16 +110,26 @@ set skeleton {<!doctype html>
 <link rel="icon" href="media/favicon.png" type="image/png">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<main>
-</main>
-</body>
+<body><main>
+</main></body>
 </html>}
 
 set header [string cat \n $header]
 set footer [string cat \n $footer]
 set skeleton [insert_after_tag $header $skeleton <body>]
 set skeleton [insert_after_tag $footer $skeleton </main>]
+
+set nav "\n<ul>\n<li><a href=\"index.html\">Blog</a></li>\n</ul>"
+
+foreach page $page_paths {
+  set key [file rootname [file tail $page]]
+  set title [md_title $page]
+  set filename $key.html
+  set li "\n<li><a href=\"$filename\">$title</a></li>"
+  set nav [insert_after_tag $li $nav </li>]
+}
+
+set skeleton [insert_after_tag $nav $skeleton <nav>]
 
 set post_table {<h1>Blog</h1>
 <table>
@@ -125,6 +143,7 @@ foreach post $post_paths {
   set filename $key.html
   set html [exec pandoc -t html ./posts/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
+  set output [insert_after_tag "$title | $site_title" $output <title>]
   set file [open $filename w]
   puts $file $output
   close $file
@@ -132,21 +151,23 @@ foreach post $post_paths {
   lappend post_rows $row
 }
 
-set post_rows [lsort -dictionary $post_rows]
-set post_rows [join $post_rows \n]
-
 foreach page $page_paths {
   set key [file rootname [file tail $page]]
   set title [md_title $page]
   set filename $key.html
   set html [exec pandoc -t html ./pages/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
+  set output [insert_after_tag "$title | $site_title" $output <title>]
   set file [open $filename w]
   puts $file $output
   close $file
 }
 
+set post_rows [lsort -dictionary $post_rows]
+set post_rows [join $post_rows \n]
 set post_table [insert_after_tag $post_rows $post_table </tr>]
 set file [open index.html w]
-puts $file [insert_after_tag $post_table $skeleton <main>]
+set output [insert_after_tag $post_table $skeleton <main>]
+set output [insert_after_tag $site_title $output <title>]
+puts $file $output
 close $file
