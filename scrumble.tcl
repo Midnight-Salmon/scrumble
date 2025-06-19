@@ -22,6 +22,14 @@ proc md_title {path} {
   return [string range $title_line 2 end]
 }
 
+proc insert_after_tag {source dest tag} {
+  set tag_length [string length $tag]
+  set tag_index [string first $tag $dest]
+  set front [string range $dest 0 [expr "$tag_index + $tag_length"]]
+  set back [string range $dest [expr "$tag_index + $tag_length"] end]
+  return [string cat $front $source $back]
+}
+
 set version 0.1
 
 puts "scrumble version $version"
@@ -73,24 +81,51 @@ set num_posts [llength post_paths]
 set num_pages [llength page_paths]
 puts "found $num_posts posts and $num_pages pages"
 
-foreach post $post_paths {
-  set key [file rootname [file tail $post]]
-  set posts($key.date) [file mtime $post]
-  set posts($key.title) [md_title $post]
-  set posts($key.filename) $key.html
-  exec pandoc -o $posts($key.filename) ./posts/$key.md
-}
-
-foreach page $page_paths {
-  set key [file rootname [file tail $page]]
-  set pages($key.title) [md_title $page]
-  set pages($key.filename) $key.html
-  exec pandoc -o $pages($key.filename) ./pages/$key.md
-}
-
 set header_file [open ./header.html]
 set header [read $header_file]
 close $header_file
 set footer_file [open ./footer.html]
 set footer [read $footer_file]
 close $footer_file
+
+set skeleton {<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main>
+    </main>
+  </body>
+</html>}
+
+foreach post $post_paths {
+  set key [file rootname [file tail $post]]
+  set posts($key.date) [file mtime $post]
+  set posts($key.title) [md_title $post]
+  set posts($key.filename) $key.html
+  set html [exec pandoc -t html ./posts/$key.md]
+  set output [insert_after_tag $html $skeleton <main>]
+  set output [insert_after_tag $header $output </head>]
+  set output [insert_after_tag $footer $output </main>]
+  set file [open $posts($key.filename) w]
+  puts $file $output
+  close $file
+}
+
+foreach page $page_paths {
+  set key [file rootname [file tail $page]]
+  set pages($key.title) [md_title $page]
+  set pages($key.filename) $key.html
+  set html [exec pandoc -t html ./pages/$key.md]
+  set output [insert_after_tag $html $skeleton <main>]
+  set output [insert_after_tag $header $output </head>]
+  set output [insert_after_tag $footer $output </main>]
+  set file [open $pages($key.filename) w]
+  puts $file $output
+  close $file
+}
+
