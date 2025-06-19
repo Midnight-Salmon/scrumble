@@ -13,6 +13,8 @@
 
 # Contact: mail@midnightsalmon.boo
 
+set version 1.0
+
 proc md_title {path} {
   set file [open $path]
   set data [read $file]
@@ -43,8 +45,6 @@ if {$argc == 0} {
 } else {
   set site_title [lindex $argv 0]
 }
-
-set version 0.1
 
 puts "scrumble version $version"
 puts "scrumbling [pwd]..."
@@ -172,4 +172,4 @@ set output [insert_after_tag $site_title $output <title>]
 puts $file $output
 close $file
 
-puts "scrumbled $site_title"
+puts "scrumbled!"
