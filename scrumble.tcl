@@ -96,19 +96,21 @@ close $footer_file
 
 set skeleton {<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-    <link rel="icon" href="favicon.png" type="image/png">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <main>
-    </main>
-  </body>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="icon" href="media/favicon.png" type="image/png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+</main>
+</body>
 </html>}
 
-set skeleton [insert_after_tag $header $skeleton </head>]
+set header [string cat \n $header]
+set footer [string cat \n $footer]
+set skeleton [insert_after_tag $header $skeleton <body>]
 set skeleton [insert_after_tag $footer $skeleton </main>]
 
 set post_table {<h1>Blog</h1>
@@ -118,30 +120,33 @@ set post_table {<h1>Blog</h1>
 
 foreach post $post_paths {
   set key [file rootname [file tail $post]]
-  set posts($key.date) [file mtime $post]
-  set posts($key.title) [md_title $post]
-  set posts($key.filename) $key.html
+  set date [file mtime $post]
+  set title [md_title $post]
+  set filename $key.html
   set html [exec pandoc -t html ./posts/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
-  set file [open $posts($key.filename) w]
+  set file [open $filename w]
   puts $file $output
   close $file
-  set row [post_table_row \
-    $posts($key.date) $posts($key.filename) $posts($key.title)]
-  set post_table [insert_after_tag $row $post_table </tr>]
+  set row [post_table_row $date $filename $title]
+  lappend post_rows $row
 }
+
+set post_rows [lsort -dictionary $post_rows]
+set post_rows [join $post_rows \n]
 
 foreach page $page_paths {
   set key [file rootname [file tail $page]]
-  set pages($key.title) [md_title $page]
-  set pages($key.filename) $key.html
+  set title [md_title $page]
+  set filename $key.html
   set html [exec pandoc -t html ./pages/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
-  set file [open $pages($key.filename) w]
+  set file [open $filename w]
   puts $file $output
   close $file
 }
 
+set post_table [insert_after_tag $post_rows $post_table </tr>]
 set file [open index.html w]
 puts $file [insert_after_tag $post_table $skeleton <main>]
 close $file
