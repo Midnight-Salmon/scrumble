@@ -158,6 +158,8 @@ foreach page $page_paths {
   set html [exec pandoc -t html ./pages/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
   set output [insert_after_tag "$title | $site_title" $output <title>]
+  set nav_off "<a href=\"$filename\">$title</a>" 
+  set output [string map [list $nav_off $title] $output]
   set file [open $filename w]
   puts $file $output
   close $file
@@ -169,6 +171,8 @@ set post_table [insert_after_tag $post_rows $post_table </tr>]
 set file [open index.html w]
 set output [insert_after_tag $post_table $skeleton <main>]
 set output [insert_after_tag $site_title $output <title>]
+set nav_off "<a href=\"index.html\">Blog</a>" 
+set output [string map [list $nav_off Blog] $output]
 puts $file $output
 close $file
 
