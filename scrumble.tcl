@@ -24,10 +24,16 @@ proc md_title {path} {
 
 proc insert_after_tag {source dest tag} {
   set tag_length [string length $tag]
-  set tag_index [string first $tag $dest]
+  set tag_index [string last $tag $dest]
   set front [string range $dest 0 [expr "$tag_index + $tag_length"]]
   set back [string range $dest [expr "$tag_index + $tag_length"] end]
   return [string cat $front $source $back]
+}
+
+proc post_table_row {date filename title} {
+  set iso_date [clock format $date -format {%Y-%m-%d}]
+  return "<tr><td>$iso_date</td><td><a href=\"$filename\"><em>$title</em></a>\
+</td></tr>"
 }
 
 set version 0.1
@@ -102,6 +108,14 @@ set skeleton {<!doctype html>
   </body>
 </html>}
 
+set skeleton [insert_after_tag $header $skeleton </head>]
+set skeleton [insert_after_tag $footer $skeleton </main>]
+
+set post_table {<h1>Blog</h1>
+<table>
+<tr><th>Date</th><th>Title</th></tr>
+</table>}
+
 foreach post $post_paths {
   set key [file rootname [file tail $post]]
   set posts($key.date) [file mtime $post]
@@ -109,11 +123,12 @@ foreach post $post_paths {
   set posts($key.filename) $key.html
   set html [exec pandoc -t html ./posts/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
-  set output [insert_after_tag $header $output </head>]
-  set output [insert_after_tag $footer $output </main>]
   set file [open $posts($key.filename) w]
   puts $file $output
   close $file
+  set row [post_table_row \
+    $posts($key.date) $posts($key.filename) $posts($key.title)]
+  set post_table [insert_after_tag $row $post_table </tr>]
 }
 
 foreach page $page_paths {
@@ -122,10 +137,11 @@ foreach page $page_paths {
   set pages($key.filename) $key.html
   set html [exec pandoc -t html ./pages/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
-  set output [insert_after_tag $header $output </head>]
-  set output [insert_after_tag $footer $output </main>]
   set file [open $pages($key.filename) w]
   puts $file $output
   close $file
 }
 
+set file [open index.html w]
+puts $file [insert_after_tag $post_table $skeleton <main>]
+close $file
