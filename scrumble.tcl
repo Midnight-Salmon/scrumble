@@ -91,8 +91,8 @@ if {$missing > 0} {
 
 set post_paths [glob {./posts/*.md}]
 set page_paths [glob {./pages/*.md}]
-set num_posts [llength post_paths]
-set num_pages [llength page_paths]
+set num_posts [llength $post_paths]
+set num_pages [llength $page_paths]
 puts "found $num_posts posts and $num_pages pages"
 
 set header_file [open ./header.html]
