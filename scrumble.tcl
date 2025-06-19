@@ -163,7 +163,7 @@ foreach page $page_paths {
   close $file
 }
 
-set post_rows [lsort -dictionary $post_rows]
+set post_rows [lsort -dictionary -decreasing $post_rows]
 set post_rows [join $post_rows \n]
 set post_table [insert_after_tag $post_rows $post_table </tr>]
 set file [open index.html w]
@@ -171,3 +171,5 @@ set output [insert_after_tag $post_table $skeleton <main>]
 set output [insert_after_tag $site_title $output <title>]
 puts $file $output
 close $file
+
+puts "scrumbled $site_title"
