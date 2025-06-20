@@ -42,8 +42,6 @@ proc md_date {path} {
   return [lindex $meta 2]
 }
 
-
-
 proc insert_after_tag {source dest tag} {
   set tag_length [string length $tag]
   set tag_index [string last $tag $dest]
