@@ -15,14 +15,34 @@
 
 set version 1.1
 
-proc md_title {path} {
+proc md_meta {path} {
   set file [open $path]
   set data [read $file]
   close $file
   set lines [split $data \n]
-  set title_line [lsearch -regex -inline $lines {^# .+}]
-  return [string range $title_line 2 end]
+  set title_block [lsearch -regex -all -inline $lines {^% .+}]
+  set title [string range [lindex $title_block 0] 2 end]
+  set author [string range [lindex $title_block 1] 2 end]
+  set date [string range [lindex $title_block 2] 2 end]
+  return [list $title $author $date]
 }
+
+proc md_title {path} {
+  set meta [md_meta $path]
+  return [lindex $meta 0]
+}
+
+proc md_author {path} {
+  set meta [md_meta $path]
+  return [lindex $meta 1]
+}
+
+proc md_date {path} {
+  set meta [md_meta $path]
+  return [lindex $meta 2]
+}
+
+
 
 proc insert_after_tag {source dest tag} {
   set tag_length [string length $tag]
@@ -33,8 +53,7 @@ proc insert_after_tag {source dest tag} {
 }
 
 proc post_table_row {date filename title} {
-  set iso_date [clock format $date -format {%Y-%m-%d}]
-  set cell1 "<td>$iso_date</td>"
+  set cell1 "<td>$date</td>"
   set cell2 "<td><a href=\"$filename\"><em>$title</em></a></td>"
   return [string cat \n <tr> $cell1 $cell2 </tr>]
 }
@@ -138,11 +157,12 @@ set post_table {<h1>Blog</h1>
 
 foreach post $post_paths {
   set key [file rootname [file tail $post]]
-  set date [file mtime $post]
+  set date [md_date $post]
   set title [md_title $post]
   set filename $key.html
   set html [exec pandoc -t html ./posts/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
+  set output [insert_after_tag "<p><time>$date</time></p>" $output <main>]
   set output [insert_after_tag "$title | $site_title" $output <title>]
   set file [open $filename w]
   puts $file $output
