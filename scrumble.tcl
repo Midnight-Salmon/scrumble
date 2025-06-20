@@ -13,7 +13,7 @@
 
 # Contact: mail@midnightsalmon.boo
 
-set version 1.1
+set version 1.2
 
 proc md_meta {path} {
   set file [open $path]
