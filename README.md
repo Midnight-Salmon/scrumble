@@ -9,7 +9,7 @@ website comes out.
 
 1. Set up your directory structure. You need a `posts` directory and a `pages`
 directory for markdown content, a `media` directory for images (with
-`favicon.png` inside, and your template files: `header.html`, `footer.html`,
+`favicon.png` inside), and your template files: `header.html`, `footer.html`,
 and `style.css`. Scrumble won't scrumble if you're missing any of these.
 2. `scrumble.tcl <site title>` to scrumble the markdown and HTML fragments into
 something resembling a website.
