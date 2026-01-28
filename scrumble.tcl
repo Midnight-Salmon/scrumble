@@ -13,7 +13,7 @@
 
 # Contact: mail@midnightsalmon.boo
 
-set version 1.3
+set version 1.4
 
 proc md_meta {path} {
   set file [open $path]
@@ -112,8 +112,8 @@ set num_posts [llength $post_paths]
 set num_pages [llength $page_paths]
 puts "found $num_posts posts and $num_pages pages"
 
-file delete -force scrumbled
-file mkdir scrumbled/blog
+file delete -force docs
+file mkdir docs/blog
 
 set header_file [open ./header.html]
 set header [read $header_file]
@@ -165,7 +165,7 @@ foreach post $post_paths {
   set output [insert_after_tag $html $skeleton <main>]
   set output [insert_after_tag "<p><time>$date</time></p>" $output <main>]
   set output [insert_after_tag "$title | $site_title" $output <title>]
-  set file [open scrumbled/blog/$filename w]
+  set file [open docs/blog/$filename w]
   puts $file $output
   close $file
   set row [post_table_row $date /blog/$filename $title]
@@ -181,7 +181,7 @@ foreach page $page_paths {
   set output [insert_after_tag "$title | $site_title" $output <title>]
   set nav_off "<a href=\"/$filename\">$title</a>" 
   set output [string map [list $nav_off $title] $output]
-  set file [open scrumbled/$filename w]
+  set file [open docs/$filename w]
   puts $file $output
   close $file
 }
@@ -189,13 +189,13 @@ foreach page $page_paths {
 set post_rows [lsort -dictionary -decreasing $post_rows]
 set post_rows [join $post_rows \n]
 set post_table [insert_after_tag $post_rows $post_table </tr>]
-set file [open scrumbled/index.html w]
+set file [open docs/index.html w]
 set output [insert_after_tag $post_table $skeleton <main>]
 set output [insert_after_tag $site_title $output <title>]
 set nav_off "<a href=\"/index.html\">Blog</a>" 
 set output [string map [list $nav_off Blog] $output]
 puts $file $output
 close $file
-file copy {*}[concat media style.css [glob {*.html}]] scrumbled
+file copy {*}[concat media style.css [glob {*.html}]] docs
 
 puts "scrumbled!"
