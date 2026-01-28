@@ -14,8 +14,9 @@ and `style.css`. Scrumble won't scrumble if you're missing any of these.
 2. `scrumble.tcl <site title>` to scrumble the markdown and HTML fragments into
 something resembling a website.
 
-Both posts and pages require a Pandoc-style title block, although the date is
-not used for pages and may be omitted:
+`header.html` must contain an empty `<nav>` tag pair. Both posts and pages
+require a Pandoc-style title block, although the date is not used for pages and
+may be omitted:
 
     % Title
     % Author
