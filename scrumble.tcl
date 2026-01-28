@@ -13,7 +13,7 @@
 
 # Contact: mail@midnightsalmon.boo
 
-set version 1.2
+set version 1.3
 
 proc md_meta {path} {
   set file [open $path]
@@ -112,6 +112,9 @@ set num_posts [llength $post_paths]
 set num_pages [llength $page_paths]
 puts "found $num_posts posts and $num_pages pages"
 
+file delete -force scrumbled
+file mkdir scrumbled/blog
+
 set header_file [open ./header.html]
 set header [read $header_file]
 close $header_file
@@ -124,8 +127,8 @@ set skeleton {<!doctype html>
 <head>
 <meta charset="utf-8">
 <title></title>
-<link rel="icon" href="media/favicon.png" type="image/png">
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="/media/favicon.png" type="image/png">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body><main>
 </main></body>
@@ -136,13 +139,13 @@ set footer [string cat \n $footer]
 set skeleton [insert_after_tag $header $skeleton <body>]
 set skeleton [insert_after_tag $footer $skeleton </main>]
 
-set nav "\n<ul>\n<li><a href=\"index.html\">Blog</a></li>\n</ul>"
+set nav "\n<ul>\n<li><a href=\"/index.html\">Blog</a></li>\n</ul>"
 
 foreach page $page_paths {
   set key [file rootname [file tail $page]]
   set title [md_title $page]
   set filename $key.html
-  set li "\n<li><a href=\"$filename\">$title</a></li>"
+  set li "\n<li><a href=\"/$filename\">$title</a></li>"
   set nav [insert_after_tag $li $nav </li>]
 }
 
@@ -162,10 +165,10 @@ foreach post $post_paths {
   set output [insert_after_tag $html $skeleton <main>]
   set output [insert_after_tag "<p><time>$date</time></p>" $output <main>]
   set output [insert_after_tag "$title | $site_title" $output <title>]
-  set file [open $filename w]
+  set file [open scrumbled/blog/$filename w]
   puts $file $output
   close $file
-  set row [post_table_row $date $filename $title]
+  set row [post_table_row $date /blog/$filename $title]
   lappend post_rows $row
 }
 
@@ -176,9 +179,9 @@ foreach page $page_paths {
   set html [exec pandoc -t html ./pages/$key.md]
   set output [insert_after_tag $html $skeleton <main>]
   set output [insert_after_tag "$title | $site_title" $output <title>]
-  set nav_off "<a href=\"$filename\">$title</a>" 
+  set nav_off "<a href=\"/$filename\">$title</a>" 
   set output [string map [list $nav_off $title] $output]
-  set file [open $filename w]
+  set file [open scrumbled/$filename w]
   puts $file $output
   close $file
 }
@@ -186,12 +189,13 @@ foreach page $page_paths {
 set post_rows [lsort -dictionary -decreasing $post_rows]
 set post_rows [join $post_rows \n]
 set post_table [insert_after_tag $post_rows $post_table </tr>]
-set file [open index.html w]
+set file [open scrumbled/index.html w]
 set output [insert_after_tag $post_table $skeleton <main>]
 set output [insert_after_tag $site_title $output <title>]
-set nav_off "<a href=\"index.html\">Blog</a>" 
+set nav_off "<a href=\"/index.html\">Blog</a>" 
 set output [string map [list $nav_off Blog] $output]
 puts $file $output
 close $file
+file copy {*}[concat media style.css [glob {*.html}]] scrumbled
 
 puts "scrumbled!"
