@@ -1,0 +1,82 @@
+body {
+  background-color: black;
+  color: white;
+  font-family: monospace;
+  font-size: 20px;
+  margin: 1em;
+}
+
+header {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 2em;
+}
+
+main {
+  max-width: 800px;
+  min-width: 800px;
+  margin: auto;
+}
+
+pre {
+  max-width: 100%;
+  min-width: 800px;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-size: smaller;
+  background-color: silver;
+  color: black;
+  padding: 0.2em;
+}
+
+blockquote {
+  font-style: italic;
+}
+
+time {
+  font-family: monospace;
+  color: silver;
+  font-size: smaller;
+}
+
+main img {
+  max-width: 100%;
+}
+
+main p, main ul, main ol {
+  font-family: serif;
+}
+
+footer {
+  background-color: silver;
+  color: black;
+  margin-top: 2em;
+  padding: 0.4em;
+  text-align: center
+}
+
+h1, h2, h3, h4, h5, h6, th {
+  color: lime;
+}
+
+a:link, a:visited, a:hover {
+  color: aqua;
+}
+
+a:hover {
+  color: lightcyan;
+  text-shadow: 0 0 8px aqua;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav ul li {
+  padding: 0.4em;
+}
+
+td {
+  padding: 0.4em;
+}
